@@ -1,0 +1,7 @@
+.vscode/
+ckpts/
+data/
+runs/
+lightning_logs/
+.ipynb_checkpoints/
+**/__pycache__

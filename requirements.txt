@@ -1,0 +1,12 @@
+numpy
+matplotlib
+pandas
+fire==0.2.1
+h5py==2.10.0
+mujoco-py==2.0.2.*
+torch>=1.4.0
+torchvision>=0.5.0
+tensorboard>=2.2.1
+pyrr==0.10.3
+gym==0.17.2
+numba==0.49.1
