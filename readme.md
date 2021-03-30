@@ -1,6 +1,6 @@
 # HyperCRL
 
-This is the codebase for the CoRL submission 175 "Continual Model-Based Reinforcement Learning with Hypernetworks"
+This is the official implementation of [Continual Model-Based Reinforcement Learning with Hypernetworks](https://arxiv.org/abs/2009.11997)
 
 ## Code Structure
 
@@ -114,7 +114,19 @@ Half_Cheetah
 python scripts/run_cheetah.py
 ```
 
+## Citation
+If you find this work or code helpful in your research, please cite:
 
+```
+@misc{huang2020continual,
+      title={Continual Model-Based Reinforcement Learning with Hypernetworks}, 
+      author={Yizhou Huang and Kevin Xie and Homanga Bharadhwaj and Florian Shkurti},
+      year={2020},
+      eprint={2009.11997},
+      archivePrefix={arXiv},
+      primaryClass={cs.LG}
+}
+```
 
 ## Acknowledgments
 
