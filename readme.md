@@ -85,12 +85,12 @@ From an Ubuntu 20.04 machine, run the following:
 ```
 sudo add-apt-repository ppa:deadsnakes/ppa
 sudo apt update -y && sudo apt upgrade -y
-sudo apt install python3.8 python3.8-dev -y
+sudo apt install python3.6 python3.6-dev -y
 ```
 
 ### Python Virtualenv
 ```
-virtualenv -p /usr/bin/python3.8 venv
+virtualenv -p /usr/bin/python3.6 venv
 source venv/bin/activate
 pip install -r requirements.txt
 cd robosuite && pip install -e . --no-use-pep517
