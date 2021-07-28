@@ -22,6 +22,8 @@ class Hparams():
             hparams.hnet_act = "elu"
         elif hparams.env == "door_pose":
             hparams.hnet_act = "relu"
+        elif hparams.env == "door_pose_kuka":
+            hparams.hnet_act = "relu"
         elif hparams.env == "pusher":
             hparams.hnet_act = "elu"
         else:
@@ -39,7 +41,7 @@ class Hparams():
         hparams.lr_hyper = 0.0001
         hparams.grad_max_norm = 5
     
-        if hparams.env == "door_pose" or hparams.env == "pusher_slide":
+        if hparams.env == "door_pose" or hparams.env == "door_pose_kuka" or hparams.env == "pusher_slide":
             hparams.beta = 0.5
         else:
             hparams.beta = 0.05
@@ -144,6 +146,8 @@ def HP(env, seed=None, save_folder='./runs/lqr'):
     elif env == "door":
         return default_arg_door(hparams)
     elif env == "door_pose":
+        return default_arg_door_pose(hparams)
+    elif env == "door_pose_kuka":
         return default_arg_door_pose(hparams)
     elif env == "pusher_rot":
         return default_arg_pusher_rot(hparams)

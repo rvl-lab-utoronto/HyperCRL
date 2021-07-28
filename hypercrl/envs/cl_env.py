@@ -220,6 +220,13 @@ class CLEnvHandler():
                 controller_configs=load_controller_config(default_controller="OSC_POSE"),
                 pose_control=True, has_renderer=render)
             env = GymWrapper(env)
+        elif self.cl_env == "door_pose_kuka":
+            from .rs import PandaDoor
+            env = suite.make(env_name="PandaDoor", handle_type=DOOR_ENV[task_id][0],
+                joint_range=DOOR_ENV[task_id][1], robots="IIWA",
+                controller_configs=load_controller_config(default_controller="OSC_POSE"),
+                pose_control=True, has_renderer=render)
+            env = GymWrapper(env)
         if not self.cl_env.startswith("lqr"):
             env.seed(self.seed)
 
