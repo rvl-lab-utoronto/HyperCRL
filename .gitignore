@@ -5,7 +5,7 @@ runs/
 lightning_logs/
 .ipynb_checkpoints/
 **/__pycache__
-<<<<<<< Updated upstream
+venv/
 
 save_dir/
 .history/

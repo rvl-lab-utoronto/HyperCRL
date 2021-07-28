@@ -79,9 +79,18 @@ We provide a breakdown of our code structure:
 
 We recommend using a virtualenv to install all the dependencies.
 
-From an Ubuntu 18.04 machine, run the following:
+From an Ubuntu 20.04 machine, run the following:
+
+### Python Installation
 ```
-virtualenv -p /usr/bin/python3.6 venv
+sudo add-apt-repository ppa:deadsnakes/ppa
+sudo apt update -y && sudo apt upgrade -y
+sudo apt install python3.8 python3.8-dev -y
+```
+
+### Python Virtualenv
+```
+virtualenv -p /usr/bin/python3.8 venv
 source venv/bin/activate
 pip install -r requirements.txt
 cd robosuite && pip install -e . --no-use-pep517
@@ -97,7 +106,7 @@ In addition, this repository also requires the MuJoCo physics engine to be insta
 Use the main python file to start training the RL experiment in any environment
 
 ```
-python main.py [method_name] [env_name] (optional seed) (optional save_dir)
+python main.py [method_name] [env_name] (optional seed) (optional save_dir) (optional --render)
 ```
 
 ```[method_name]``` can be one of ```hnet```, ```coreset```, ```ewc```, ```si```, ```multitask```, ```single``` or ```finetune```
