@@ -567,9 +567,9 @@ if __name__ == "__main__":
     env = suite.make(
         **options,
         has_renderer=True,
-        has_offscreen_renderer=False,
+        has_offscreen_renderer=True,
         ignore_done=False,
-        use_camera_obs=False,
+        use_camera_obs=True,
         control_freq=10,
     )
     print("Model Timestep", env.model_timestep, "Control Timestep", env.control_timestep)
@@ -582,9 +582,9 @@ if __name__ == "__main__":
 
     # do visualization
     for i in range(10000):
-        env.render()
-        # action = np.random.uniform(low, high)
-        # obs, reward, done, _ = env.step(action)
         # env.render()
-        # if done:
-        #     env.reset()
+        action = np.random.uniform(low, high)
+        obs, reward, done, _ = env.step(action)
+        env.render()
+        if done:
+            env.reset()

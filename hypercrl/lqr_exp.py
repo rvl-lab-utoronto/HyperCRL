@@ -177,6 +177,7 @@ def play_model(hparams):
         print(f"Average reward for task {task_id + 1} is {avg_reward}")
 
 def run(hparams):
+    print(f'Running')
 
     # Reset seed
     reset_seed(hparams.seed)
@@ -250,7 +251,7 @@ def run(hparams):
                 # Train Dynamics Model
                 ts = time.time()
                 train(task_id, model, trainer, logger, collector, btest, hparams)
-                print('Training time', time.time() - ts)
+                print(f'Training time', time.time() - ts)
             #env.render()
             u_t = agent.act(x_t, task_id=task_id).detach().cpu().numpy()
             x_tt, reward, done, info = env.step(u_t.reshape(env.action_space.shape))

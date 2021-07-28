@@ -3,6 +3,7 @@ import hypercrl
 
 import sys
 
+
 if __name__ == "__main__":
     fire.Fire({ 
         'coreset': hypercrl.coreset,

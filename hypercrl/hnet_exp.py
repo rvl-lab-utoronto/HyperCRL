@@ -1,6 +1,7 @@
 import numpy as np
 import random
 import matplotlib
+
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import time
@@ -22,6 +23,7 @@ from hypercrl.hypercl.utils import hnet_regularizer as hreg
 from hypercrl.hypercl.utils import ewc_regularizer as ewc
 from hypercrl.hypercl.utils import si_regularizer as si
 from hypercrl.hypercl.utils import optim_step as opstep
+
 
 class TaskLoss(torch.nn.Module):
     def __init__(self, hparams, mnet):
@@ -64,7 +66,7 @@ class TaskLoss(torch.nn.Module):
             inv_var = torch.exp(-logvar)
             loss = ((mu - gt) ** 2) * inv_var + logvar
             loss = loss.sum() / self.y_dim
-           
+
             if add_reg_logvar:
                 loss += self.reg_logvar(weights)
 
@@ -76,13 +78,14 @@ class TaskLoss(torch.nn.Module):
 
         return loss
 
+
 class TaskLossMT(TaskLoss):
     def __init__(self, hparams, mnet, hnet, collector, task_id):
         super().__init__(hparams, mnet)
         self.hnet = hnet
         self.task_id = task_id
         self.gpuid = hparams.gpuid
-    
+
         self.add_trainset(collector, task_id, hparams)
 
     def add_trainset(self, collector, task_id, hparams):
@@ -91,7 +94,7 @@ class TaskLossMT(TaskLoss):
             train_set, _ = collector.get_dataset(tid)
 
             train_loader = torch.utils.data.DataLoader(train_set, batch_size=hparams.bs,
-                shuffle=True, drop_last=True)
+                                                       shuffle=True, drop_last=True)
             old_data.append(train_loader)
             old_data_iter.append(iter(train_loader))
 
@@ -115,7 +118,7 @@ class TaskLossMT(TaskLoss):
         X = torch.cat((x_t, a_t), dim=-1)
         weights = self.hnet.forward(tid)
         Y = self.mnet.forward(X, weights)
-        
+
         # Task-specific loss.
         loss_task = super().forward(Y, x_tt, weights, add_reg_logvar=False)
         return loss_task
@@ -126,10 +129,11 @@ class TaskLossMT(TaskLoss):
             loss += self.replay(tid)
         return loss
 
+
 class TaskLossReplay(TaskLossMT):
     def __init__(self, hparams, mnet, hnet, collector, task_id):
         super().__init__(hparams, mnet, hnet, collector, task_id)
-    
+
     def add_trainset(self, collector, task_id, hparams):
         old_data, old_data_iter = [], []
         M = hparams.bs // task_id if task_id > 0 else 0
@@ -137,16 +141,15 @@ class TaskLossReplay(TaskLossMT):
             train_set, _ = collector.get_dataset(tid)
 
             train_loader = torch.utils.data.DataLoader(train_set, batch_size=M,
-                shuffle=True, drop_last=True)
+                                                       shuffle=True, drop_last=True)
             old_data.append(train_loader)
             old_data_iter.append(iter(train_loader))
 
         self.old_data = old_data
         self.old_data_iter = old_data_iter
-    
+
 
 def augment_model(task_id, mnet, hnet, collector, hparams):
-
     # Regularizer targets.
     targets = hreg.get_current_targets(task_id, hnet)
 
@@ -167,7 +170,7 @@ def augment_model(task_id, mnet, hnet, collector, hparams):
     hnet.to(gpuid)
 
     # Optimize over the GP model params and likelihood param
-    
+
     mnet.train()
     hnet.train()
 
@@ -192,18 +195,19 @@ def augment_model(task_id, mnet, hnet, collector, hparams):
 
     regularized_params = list(hnet.theta)
     if task_id > 0 and hparams.plastic_prev_tembs:
-        for i in range(task_id): # for all previous task embeddings
+        for i in range(task_id):  # for all previous task embeddings
             regularized_params.append(hnet.get_task_emb(i))
     theta_optimizer = torch.optim.Adam(regularized_params, lr=hparams.lr_hyper)
     # We only optimize the task embedding corresponding to the current task,
     # the remaining ones stay constant.
     emb_optimizer = torch.optim.Adam([hnet.get_task_emb(task_id)],
-                               lr=hparams.lr_hyper)
+                                     lr=hparams.lr_hyper)
 
-    trainer_misc = (targets, mll, theta_optimizer, emb_optimizer,regularized_params,
-        fisher_ests, si_omega)
+    trainer_misc = (targets, mll, theta_optimizer, emb_optimizer, regularized_params,
+                    fisher_ests, si_omega)
 
     return trainer_misc
+
 
 def augment_model_after(task_id, mnet, hnet, hparams, collector):
     if hparams.model == "hnet_si":
@@ -217,26 +221,26 @@ def augment_model_after(task_id, mnet, hnet, hparams, collector):
         fake_main_params = torch.nn.ParameterList()
         for i, W in enumerate(weights):
             fake_main_params.append(torch.nn.Parameter(torch.Tensor(*W.shape),
-                                                 requires_grad=True))
+                                                       requires_grad=True))
             fake_main_params[i].data = weights[i]
 
         ewc.compute_fisher(task_id, collector, fake_main_params, hparams.gpuid, mnet,
-            empirical_fisher=True, online=False, n_max=hparams.n_fisher,
-            regression=True, allowed_outputs=None, out_var=hparams.out_var)
+                           empirical_fisher=True, online=False, n_max=hparams.n_fisher,
+                           regression=True, allowed_outputs=None, out_var=hparams.out_var)
+
 
 def train(task_id, mnet, hnet, trainer_misc, logger, train_set, hparams):
-
     # Data Loader
     train_loader = torch.utils.data.DataLoader(train_set, batch_size=hparams.bs, shuffle=True,
-            drop_last=True, num_workers=hparams.num_ds_worker)
+                                               drop_last=True, num_workers=hparams.num_ds_worker)
 
     # GPUID
     gpuid = hparams.gpuid
 
     regged_outputs = None
 
-    targets, mll, theta_optimizer, emb_optimizer,regularized_params, \
-        fisher_ests, si_omega = trainer_misc
+    targets, mll, theta_optimizer, emb_optimizer, regularized_params, \
+    fisher_ests, si_omega = trainer_misc
 
     # Whether the regularizer will be computed during training?
     calc_reg = task_id > 0 and hparams.beta > 0
@@ -262,7 +266,7 @@ def train(task_id, mnet, hnet, trainer_misc, logger, train_set, hparams):
             if hparams.model == "hnet_si":
                 si.si_update_optim_step(mnet, weights, task_id)
                 for weight in weights:
-                    weight.retain_grad() # save grad for calculate si path integral
+                    weight.retain_grad()  # save grad for calculate si path integral
 
             Y = mnet.forward(X, weights)
             # Task-specific loss.
@@ -270,7 +274,7 @@ def train(task_id, mnet, hnet, trainer_misc, logger, train_set, hparams):
             # We already compute the gradients, to then be able to compute delta
             # theta.
             loss_task.backward(retain_graph=calc_reg,
-                            create_graph=hparams.backprop_dt and calc_reg)
+                               create_graph=hparams.backprop_dt and calc_reg)
             torch.nn.utils.clip_grad_norm_(hnet.get_task_emb(task_id), hparams.grad_max_norm)
 
             # The task embedding is only trained on the task-specific loss.
@@ -294,8 +298,8 @@ def train(task_id, mnet, hnet, trainer_misc, logger, train_set, hparams):
                     dTheta = None
                 else:
                     dTheta = opstep.calc_delta_theta(theta_optimizer,
-                        hparams.use_sgd_change, lr=hparams.lr_hyper,
-                        detach_dt=not hparams.backprop_dt)
+                                                     hparams.use_sgd_change, lr=hparams.lr_hyper,
+                                                     detach_dt=not hparams.backprop_dt)
 
                 if hparams.plastic_prev_tembs:
                     dTembs = dTheta[-task_id:]
@@ -304,43 +308,44 @@ def train(task_id, mnet, hnet, trainer_misc, logger, train_set, hparams):
                     dTembs = None
 
                 loss_reg = hreg.calc_fix_target_reg(hnet, task_id,
-                    targets=targets, dTheta=dTheta, dTembs=dTembs, mnet=mnet,
-                    inds_of_out_heads=regged_outputs,
-                    fisher_estimates=fisher_ests,
-                    si_omega=si_omega)
-                
+                                                    targets=targets, dTheta=dTheta, dTembs=dTembs, mnet=mnet,
+                                                    inds_of_out_heads=regged_outputs,
+                                                    fisher_estimates=fisher_ests,
+                                                    si_omega=si_omega)
+
                 loss_reg = loss_reg * hparams.beta * Y.size(0)
 
                 loss_reg.backward()
 
-                if grad_tloss is not None: # Debug
+                if grad_tloss is not None:  # Debug
                     grad_full = torch.cat([d.grad.view(-1) for d in hnet.theta])
                     # Grad of regularizer.
                     grad_diff = grad_full - grad_tloss
                     grad_diff_norm = torch.norm(grad_diff, 2)
-                    
+
                     # Cosine between regularizer gradient and task-specific
                     # gradient.
                     if dTheta is None:
                         dTheta = opstep.calc_delta_theta(theta_optimizer,
-                            hparams.use_sgd_change, lr=hparams.lr_hyper,
-                            detach_dt=not hparams.backprop_dt)
+                                                         hparams.use_sgd_change, lr=hparams.lr_hyper,
+                                                         detach_dt=not hparams.backprop_dt)
                     dT_vec = torch.cat([d.view(-1).clone() for d in dTheta])
-                    grad_cos = torch.nn.functional.cosine_similarity(grad_diff.view(1,-1),
-                                                dT_vec.view(1,-1))
+                    grad_cos = torch.nn.functional.cosine_similarity(grad_diff.view(1, -1),
+                                                                     dT_vec.view(1, -1))
 
                     grad_tloss = (grad_tloss, grad_full, grad_diff_norm, grad_cos)
 
             torch.nn.utils.clip_grad_norm_(regularized_params, hparams.grad_max_norm)
             theta_optimizer.step()
 
-            logger.train_step(loss_task, loss_reg, dTheta, grad_tloss, weights)       
+            logger.train_step(loss_task, loss_reg, dTheta, grad_tloss, weights)
             # Validate
             logger.validate(mll)
 
             it += 1
             if it >= hparams.train_dynamic_iters:
                 break
+
 
 def plot_embs(hparams, embs):
     fig = plt.figure()
@@ -351,6 +356,7 @@ def plot_embs(hparams, embs):
         ax.plot(emb[0], emb[1], 'kx')
     fig.savefig(f'{hparams.save_folder}/embedding_{hparams.seed}.png')
 
+
 def play_model(hparams):
     _, hnet, agent, checkpoint, _ = reload_model(hparams)
 
@@ -359,7 +365,7 @@ def play_model(hparams):
 
     # Task Embedding
     embs = hnet.get_task_embs()
-    #plot_embs(hparams, embs)
+    # plot_embs(hparams, embs)
 
     envs = CLEnvHandler(hparams.env, hparams.seed)
     for task_id in range(checkpoint['num_tasks_seen']):
@@ -386,7 +392,9 @@ def play_model(hparams):
         avg_reward = np.mean(avg_rewards)
         print(f"Average reward for task {task_id + 1} is {avg_reward}")
 
-def run(hparams):
+
+def run(hparams, render=False):
+    print(f'Running')
 
     # Reset seed
     reset_seed(hparams.seed)
@@ -438,8 +446,8 @@ def run(hparams):
 
     for task_id in range(num_tasks_seen, hparams.num_tasks):
         # New Task with different friction
-        env = envs.add_task(task_id, render=False)
-        
+        env = envs.add_task(task_id, render=render)
+
         print(f"Collecting some random data first for task {task_id}")
         x_t = env.reset()
         for it in range(hparams.init_rand_steps):
@@ -463,14 +471,16 @@ def run(hparams):
                 ts = time.time()
                 train_set, _ = collector.get_dataset(task_id)
                 train(task_id, mnet, hnet, trainer_misc, logger, train_set, hparams)
-                print("Training time", time.time() - ts)
-            # env.render()
+                print(f"Training time", time.time() - ts)
+
+            if render:
+                env.render()
             # Cache the mainnet weight
             agent.cache_hnet(task_id)
             # Run MPC
             u_t = agent.act(x_t, task_id=task_id).detach().cpu().numpy()
             x_tt, reward, done, info = env.step(u_t.reshape(env.action_space.shape))
-                
+
             # Update the dataset of the env in which we're training 
             collector.add(x_t, u_t, x_tt, task_id)
             x_t = x_tt
@@ -478,7 +488,7 @@ def run(hparams):
             if done:
                 x_t = env.reset()
                 agent.reset()
-  
+
             logger.env_step(x_tt, reward, done, info, task_id)
 
         augment_model_after(task_id, mnet, hnet, hparams, collector)
@@ -488,6 +498,7 @@ def run(hparams):
 
     envs.close()
     logger.writer.close()
+
 
 def chunked_hnet(env, seed=None, savepath=None, play=False):
     # Hyperparameters
@@ -502,7 +513,7 @@ def chunked_hnet(env, seed=None, savepath=None, play=False):
         run(hparams)
 
 
-def hnet(env, seed=None, savepath=None, play=False):
+def hnet(env, seed=None, savepath=None, play=False, render=False):
     # Hyperparameters
     hparams = HP(env, seed, savepath)
     hparams.model = "hnet"
@@ -512,7 +523,8 @@ def hnet(env, seed=None, savepath=None, play=False):
     if play:
         play_model(hparams)
     else:
-        run(hparams)
+        run(hparams, render)
+
 
 def hnet_si(env, seed=None, savepath=None, play=False):
     # Hyperparameters
@@ -527,6 +539,7 @@ def hnet_si(env, seed=None, savepath=None, play=False):
         play_model(hparams)
     else:
         run(hparams)
+
 
 def hnet_ewc(env, seed=None, savepath=None, play=False):
     # Hyperparameters
@@ -543,6 +556,7 @@ def hnet_ewc(env, seed=None, savepath=None, play=False):
     else:
         run(hparams)
 
+
 def hnet_mt(env, seed=None, savepath=None, play=False):
     # Hyperparameters
     hparams = HP(env, seed, savepath)
@@ -557,6 +571,7 @@ def hnet_mt(env, seed=None, savepath=None, play=False):
     else:
         run(hparams)
 
+
 def hnet_replay(env, seed=None, savepath=None, play=False):
     # Hyperparameters
     hparams = HP(env, seed, savepath)
@@ -567,14 +582,15 @@ def hnet_replay(env, seed=None, savepath=None, play=False):
     hparams.grad_max_norm = 5
     hparams.plastic_prev_tembs = True
 
-
     if play:
         play_model(hparams)
     else:
         run(hparams)
 
+
 if __name__ == "__main__":
     import fire
+
     fire.Fire({
         'hnet': hnet,
         'chunked_hnet': chunked_hnet,

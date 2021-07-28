@@ -1,3 +1,17 @@
+# Extension of HyperCRL
+
+In this fork of the [HyperCRL](https://github.com/rvl-lab-utoronto/HyperCRL) we will extend it with a vision-based state representation learning (SRL) system.
+
+The aim of our research is to explore how we can use SRL on image data to train model-based RL agents.
+
+Based on the results we will implement an automated task detection approach to infer task boundaries.
+
+***
+
+Following is the slightly altered [ReadMe](https://github.com/rvl-lab-utoronto/HyperCRL/blob/master/readme.md) of the original repository.
+
+***
+
 # HyperCRL
 
 This is the official implementation of [Continual Model-Based Reinforcement Learning with Hypernetworks](https://arxiv.org/abs/2009.11997)
@@ -70,7 +84,7 @@ From an Ubuntu 18.04 machine, run the following:
 virtualenv -p /usr/bin/python3.6 venv
 source venv/bin/activate
 pip install -r requirements.txt
-cd robosuite && pip install -e .
+cd robosuite && pip install -e . --no-use-pep517
 cd ..
 ```
 
