@@ -1,6 +1,11 @@
 numpy
 matplotlib
 pandas
+pyparsing
+cycler
+python-dateutil
+kiwisolver
+protobuf
 recordtype==1.3
 fire==0.2.1
 h5py==2.10.0
@@ -11,8 +16,3 @@ tensorboard>=2.2.1
 pyrr==0.10.3
 gym==0.17.2
 numba==0.49.1
-pyparsing
-cycler
-python-dateutil
-kiwisolver
-protobuf

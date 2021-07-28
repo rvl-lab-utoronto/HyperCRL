@@ -1,6 +1,7 @@
 # Extension of HyperCRL
 
-In this fork of the [HyperCRL](https://github.com/rvl-lab-utoronto/HyperCRL) we will extend it with a vision-based state representation learning (SRL) system.
+In this fork of the [HyperCRL](https://github.com/rvl-lab-utoronto/HyperCRL) we will extend it with a vision-based state
+representation learning (SRL) system.
 
 The aim of our research is to explore how we can use SRL on image data to train model-based RL agents.
 
@@ -8,17 +9,20 @@ Based on the results we will implement an automated task detection approach to i
 
 ***
 
-Following is the slightly altered [ReadMe](https://github.com/rvl-lab-utoronto/HyperCRL/blob/master/readme.md) of the original repository.
+Following is the slightly altered [ReadMe](https://github.com/rvl-lab-utoronto/HyperCRL/blob/master/readme.md) of the
+original repository.
 
 ***
 
 # HyperCRL
 
-This is the official implementation of [Continual Model-Based Reinforcement Learning with Hypernetworks](https://arxiv.org/abs/2009.11997)
+This is the official implementation
+of [Continual Model-Based Reinforcement Learning with Hypernetworks](https://arxiv.org/abs/2009.11997)
 
 ## Code Structure
 
 We provide a breakdown of our code structure:
+
 ```
   HyperCRL
     hypercrl/
@@ -82,6 +86,7 @@ We recommend using a virtualenv to install all the dependencies.
 From an Ubuntu 20.04 machine, run the following:
 
 ### Python Installation
+
 ```
 sudo add-apt-repository ppa:deadsnakes/ppa
 sudo apt update -y && sudo apt upgrade -y
@@ -89,15 +94,18 @@ sudo apt install python3.6 python3.6-dev -y
 ```
 
 ### Python Virtualenv
+
 ```
 virtualenv -p /usr/bin/python3.6 venv
 source venv/bin/activate
-pip install -r requirements.txt
+python -m pip install -I -r requirements.txt
 cd robosuite && pip install -e . --no-use-pep517
 cd ..
 ```
 
-In addition, this repository also requires the MuJoCo physics engine to be installed. Please refer to the [mujoco-py](https://github.com/openai/mujoco-py) for instructions on how to obtain license and other system dependencies.
+In addition, this repository also requires the MuJoCo physics engine to be installed. Please refer to
+the [mujoco-py](https://github.com/openai/mujoco-py) for instructions on how to obtain license and other system
+dependencies.
 
 ## Run
 
@@ -109,35 +117,44 @@ Use the main python file to start training the RL experiment in any environment
 python main.py [method_name] [env_name] (optional seed) (optional save_dir) (optional --render)
 ```
 
-```[method_name]``` can be one of ```hnet```, ```coreset```, ```ewc```, ```si```, ```multitask```, ```single``` or ```finetune```
+```[method_name]``` can be one of ```hnet```, ```coreset```, ```ewc```, ```si```, ```multitask```, ```single```
+or ```finetune```
 
 ```[env_name]``` can be one of ```pusher```, ```door_pose```, or ```half_cheetah_body```
 
 ### Playback Trained Model
+
 Use the main python file to reload a checkpoint and replay a trained agent in a GUI window
+
 ```
 python main.py [method_name] [env_name] (optional seed) (optional save_dir) --play
 ```
 
 ### Reproduce All Results
-To reproduce the result in the paper, the following python scripts (commands) include sub-commands on how to run experiment using different CL methods (HyperCRL, coreset, SI, ...)
+
+To reproduce the result in the paper, the following python scripts (commands) include sub-commands on how to run
+experiment using different CL methods (HyperCRL, coreset, SI, ...)
 
 Pusher
+
 ```
 python scripts/run_pusher.py
 ```
 
 Door
+
 ```
 python scripts/run_door.py
 ```
 
 Half_Cheetah
+
 ```
 python scripts/run_cheetah.py
 ```
 
 ## Citation
+
 If you find this work or code helpful in your research, please cite:
 
 ```
@@ -153,20 +170,21 @@ If you find this work or code helpful in your research, please cite:
 
 ## Acknowledgments
 
-Please refer to the following github repo for a more detailed description about the original code which are not part of the contribution of the author's submission.
+Please refer to the following github repo for a more detailed description about the original code which are not part of
+the contribution of the author's submission.
 
 * [Surreal Robotics Suite](https://github.com/StanfordVL/robosuite)
 
-  * [Paper](http://proceedings.mlr.press/v87/fan18a.html)
+    * [Paper](http://proceedings.mlr.press/v87/fan18a.html)
 
 * [HyperCL](https://github.com/chrhenning/hypercl)
-  * [Paper](https://arxiv.org/abs/1906.00695)
+    * [Paper](https://arxiv.org/abs/1906.00695)
 
 * [Gym Extension](https://github.com/Breakend/gym-extensions)
-  * [Paper](https://arxiv.org/abs/1708.04352)
+    * [Paper](https://arxiv.org/abs/1708.04352)
 
 * [DoorGym](https://github.com/PSVL/DoorGym)
     * [Paper](https://arxiv.org/abs/1908.01887)
 
 * [Three Scenarios for Contiual Learning](https://github.com/GMvandeVen/continual-learning)
-  * [Paper](https://arxiv.org/abs/1904.07734)
+    * [Paper](https://arxiv.org/abs/1904.07734)
