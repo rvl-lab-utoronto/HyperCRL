@@ -114,13 +114,15 @@ dependencies.
 Use the main python file to start training the RL experiment in any environment
 
 ```
-python main.py [method_name] [env_name] (optional seed) (optional save_dir) (optional --render)
+python main.py [method_name] [env_name] [robot_name] (optional seed) (optional save_dir) (optional --render)
 ```
 
 ```[method_name]``` can be one of ```hnet```, ```coreset```, ```ewc```, ```si```, ```multitask```, ```single```
 or ```finetune```
 
 ```[env_name]``` can be one of ```pusher```, ```door_pose```, or ```half_cheetah_body```
+
+```[robot_name]``` can be one of ```Panda``` or ```IIWA```
 
 ### Playback Trained Model
 

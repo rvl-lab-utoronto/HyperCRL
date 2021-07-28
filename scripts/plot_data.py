@@ -5,12 +5,14 @@ import math
 import pandas as pd
 import fire
 import matplotlib
+
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from scipy.signal import savgol_filter
 
+
 def plot_training(base, env, models, tasks, seeds, use_one_rl_fig, max_iteration,
-        task_description, plot_single, smoothing):
+                  task_description, plot_single, smoothing):
     stats = {}
     times = {}
 
@@ -24,18 +26,18 @@ def plot_training(base, env, models, tasks, seeds, use_one_rl_fig, max_iteration
             filename = osp.join(base, f'{env}_{model}_{seed}.csv')
             with open(filename, 'r') as f:
                 reader = csv.DictReader(f)
-                
+
                 arr = [[] for t in range(tasks)]
 
                 for row in reader:
                     task = int(row['task'])
                     diff = float(row['diff'])
-                    
+
                     arr[task].append(diff)
 
                     if record_time:
                         times[task].append(int(row['time']))
-                
+
                 for t in range(tasks):
                     stats[t][m][s] = np.array(arr[t])
             record_time = False
@@ -52,7 +54,7 @@ def plot_training(base, env, models, tasks, seeds, use_one_rl_fig, max_iteration
             filename = osp.join(base, f'{env}_{model}_{seed}.csv')
             with open(filename, 'r') as f:
                 reader = csv.DictReader(f)
-            
+
                 for row in reader:
                     task = int(row['task'])
                     diff = float(row['diff'])
@@ -71,28 +73,29 @@ def plot_training(base, env, models, tasks, seeds, use_one_rl_fig, max_iteration
             std = np.array(singles[t]).std(axis=0)
             # plt.plot(time, bound * np.ones(len(time)), 'k-', label='single task')
             plt.plot(time[:len(single_diff)], single_diff, '-', label='single task')
-            plt.fill_between(time[:len(single_diff)], single_diff-std, single_diff+std, alpha=0.5)
+            plt.fill_between(time[:len(single_diff)], single_diff - std, single_diff + std, alpha=0.5)
 
         for m in range(arr.shape[0]):
-            mu=arr[m, :].mean(0)
+            mu = arr[m, :].mean(0)
             mu = savgol_filter(mu, 5, 3) if smoothing else mu
-            std=arr[m, :].std(0)
-            plt.plot(time, mu, '--', label = models[m])
-            plt.fill_between(time, mu-std, mu+std, alpha=0.5)
-        
+            std = arr[m, :].std(0)
+            plt.plot(time, mu, '--', label=models[m])
+            plt.fill_between(time, mu - std, mu + std, alpha=0.5)
+
         plt.ylabel('l1 diff')
         plt.xlabel('training steps')
         plt.title(f'{env}_task{t}')
-        
+
         plt.xlim([-1000, max(time) + 1000])
-        #plt.ylim([0, 0.1])
+        # plt.ylim([0, 0.1])
         plt.legend()
         filename = osp.join(base, f'{env}_task{t}.png')
         plt.savefig(filename)
         plt.close()
 
+
 def plot_rl(base, env, models, tasks, seeds, use_one_rl_fig, max_iteration,
-        task_description, plot_single, smoothing):
+            task_description, plot_single, smoothing):
     ################################### RL #####################################
     rewards, diffs = {}, {}
     times = {}
@@ -108,12 +111,12 @@ def plot_rl(base, env, models, tasks, seeds, use_one_rl_fig, max_iteration,
             filename = osp.join(base, f'RL{env}_{model}_{seed}.csv')
             with open(filename, 'r') as f:
                 reader = csv.DictReader(f)
-                
+
                 for row in reader:
                     task = int(row['task'])
                     reward = float(row['reward'])
                     diff = float(row['on_policy_diff'])
-                    
+
                     rewards[task][m][s].append(reward)
                     diffs[task][m][s].append(diff)
 
@@ -161,8 +164,8 @@ def plot_rl(base, env, models, tasks, seeds, use_one_rl_fig, max_iteration,
             single_time = single_times[t]
             mu = single.mean(0)
             std = single.std(0)
-            plt.plot(single_time, mu, '--', label = "single_task")
-            plt.fill_between(single_time, mu-std, mu+std, alpha=0.2)
+            plt.plot(single_time, mu, '--', label="single_task")
+            plt.fill_between(single_time, mu - std, mu + std, alpha=0.2)
 
         # Vertical line indicating task switch
         st = time[0] // max_iteration
@@ -174,10 +177,10 @@ def plot_rl(base, env, models, tasks, seeds, use_one_rl_fig, max_iteration,
         for m in range(arr.shape[0]):
             mu = arr[m, :].mean(0)
             mu = savgol_filter(mu, 5, 3) if smoothing else mu
-            std=arr[m, :].std(0)
-            plt.plot(time, mu, '--', label = models[m])
-            plt.fill_between(time, mu-std, mu+std, alpha=0.2)
-        
+            std = arr[m, :].std(0)
+            plt.plot(time, mu, '--', label=models[m])
+            plt.fill_between(time, mu - std, mu + std, alpha=0.2)
+
         plt.ylabel(ylabel)
         plt.xlabel('env steps')
         plt.title(f'{env}_{task_description[t]}')
@@ -195,11 +198,11 @@ def plot_rl(base, env, models, tasks, seeds, use_one_rl_fig, max_iteration,
                 num_row, num_col = tasks, 1
             else:
                 fig = plt.figure(figsize=(24, 9))
-                num_row, num_col = int(tasks/2+0.5), 2
+                num_row, num_col = int(tasks / 2 + 0.5), 2
             for t in range(tasks):
                 fig.add_subplot(num_row, num_col, t + 1)
                 plot_rl_in_ax(t, data, single_data, label, ylim, use_one_rl_fig)
-            
+
             plt.legend()
             plt.tight_layout()
             filename = osp.join(base, f'{env}_{label}.png')
@@ -217,7 +220,8 @@ def plot_rl(base, env, models, tasks, seeds, use_one_rl_fig, max_iteration,
                 plt.close()
 
     plot_one_data(rewards, single_rewards, 'reward', None)
-    #plot_one_data(diffs, single_diffs, 'onpoli_diff', [0, 0.01])
+    # plot_one_data(diffs, single_diffs, 'onpoli_diff', [0, 0.01])
+
 
 def plot_debug_dynamic(base, env, models, tasks, seeds, max_iteration, task_description, smoothing):
     manual_diffs = [[[] for s in range(len(seeds))] for m in range(len(models))]
@@ -262,13 +266,13 @@ def plot_debug_dynamic(base, env, models, tasks, seeds, max_iteration, task_desc
         mu = rand_diffs[m, :].mean(0)
         mu = savgol_filter(mu, 5, 3) if smoothing else mu
         std = rand_diffs[m, :].std(0)
-        plt.plot(times, mu, '-.', label= models[m] + " rand")
-        plt.fill_between(times, mu-std, mu+std, alpha=0.5)
+        plt.plot(times, mu, '-.', label=models[m] + " rand")
+        plt.fill_between(times, mu - std, mu + std, alpha=0.5)
 
     plt.ylabel('l1 prediction error')
     plt.xlabel('training steps')
     plt.title(f'{env}_task 0')
-        
+
     plt.xlim([-1000, max(times) + 1000])
     plt.ylim([0, 0.01])
     plt.legend()
@@ -278,17 +282,16 @@ def plot_debug_dynamic(base, env, models, tasks, seeds, max_iteration, task_desc
 
 
 def plot_data(base='./runs/lqr/lqr10',
-    env="lqr10",
-    models=["hnet", "baseline"],
-    tasks=4,
-    seeds=[1045, 1046, 2000, 2344, 777, 855],
-    use_one_rl_fig=True,
-    max_iteration=10000,
-    do_plot_train=True,
-    do_plot_rl=True,
-    plot_single=True,
-    smoothing=True):
-
+              env="lqr10",
+              models=["hnet", "baseline"],
+              tasks=4,
+              seeds=[1045, 1046, 2000, 2344, 777, 855],
+              use_one_rl_fig=True,
+              max_iteration=10000,
+              do_plot_train=True,
+              do_plot_rl=True,
+              plot_single=False,
+              smoothing=True):
     tasks = int(tasks)
 
     if env.startswith("lqr"):
@@ -324,13 +327,14 @@ def plot_data(base='./runs/lqr/lqr10',
 
     if do_plot_train:
         plot_training(base, env, models, tasks, seeds, use_one_rl_fig, max_iteration,
-            task_description, plot_single, smoothing)
+                      task_description, plot_single, smoothing)
     if do_plot_rl:
         plot_rl(base, env, models, tasks, seeds, use_one_rl_fig, max_iteration,
-            task_description, plot_single, smoothing)
+                task_description, plot_single, smoothing)
 
     # plot_debug_dynamic(base, env, models, tasks, seeds, max_iteration,
     #         task_description, smoothing)
+
 
 if __name__ == "__main__":
     fire.Fire(plot_data)

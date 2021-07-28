@@ -357,7 +357,7 @@ def plot_embs(hparams, embs):
     fig.savefig(f'{hparams.save_folder}/embedding_{hparams.seed}.png')
 
 
-def play_model(hparams):
+def play_model(hparams, runs=10):
     _, hnet, agent, checkpoint, _ = reload_model(hparams)
 
     # Reset seed
@@ -367,14 +367,14 @@ def play_model(hparams):
     embs = hnet.get_task_embs()
     # plot_embs(hparams, embs)
 
-    envs = CLEnvHandler(hparams.env, hparams.seed)
+    envs = CLEnvHandler(hparams.env, hparams.robot, hparams.seed)
     for task_id in range(checkpoint['num_tasks_seen']):
         # Cache the mainnet weight
         agent.cache_hnet(task_id)
         env = envs.add_task(task_id, render=True)
 
         avg_rewards = []
-        for _ in range(10):
+        for _ in range(runs):
             rewards = []
             x_t = env.reset()
             agent.reset()
@@ -391,6 +391,7 @@ def play_model(hparams):
 
         avg_reward = np.mean(avg_rewards)
         print(f"Average reward for task {task_id + 1} is {avg_reward}")
+        env.close()
 
 
 def run(hparams, render=False):
@@ -439,7 +440,7 @@ def run(hparams, render=False):
     rand_pi = RandomAgent(hparams)
 
     # Start learning in environment
-    envs = CLEnvHandler(hparams.env, hparams.seed)
+    envs = CLEnvHandler(hparams.env, hparams.robot, hparams.seed)
     if hparams.resume:
         for tid in range(num_tasks_seen):
             envs.add_task(tid)
@@ -513,15 +514,15 @@ def chunked_hnet(env, seed=None, savepath=None, play=False):
         run(hparams)
 
 
-def hnet(env, seed=None, savepath=None, play=False, render=False):
+def hnet(env, robot="Panda", seed=None, savepath=None, resume=False, render=False, play=False, runs=10):
     # Hyperparameters
-    hparams = HP(env, seed, savepath)
+    hparams = HP(env=env, robot=robot, seed=seed, save_folder=savepath, resume=resume)
     hparams.model = "hnet"
 
     hparams = Hparams.add_hnet_hparams(hparams)
 
     if play:
-        play_model(hparams)
+        play_model(hparams, runs)
     else:
         run(hparams, render)
 

@@ -293,7 +293,7 @@ class MonitorRL(MonitorBase):
         self.rl_stats = [{"step": [], "reward": [], "time": [], "diff": []} for _ in range(self.num_envs)]
         self.rewards = []
 
-        self.eval_envs = CLEnvHandler(hparams.env, hparams.seed)
+        self.eval_envs = CLEnvHandler(hparams.env, hparams.robot, hparams.seed)
         for task_id in range(hparams.num_tasks):
             self.eval_envs.add_task(task_id, render=False)
 
