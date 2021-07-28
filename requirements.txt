@@ -11,3 +11,8 @@ tensorboard>=2.2.1
 pyrr==0.10.3
 gym==0.17.2
 numba==0.49.1
+pyparsing
+cycler
+python-dateutil
+kiwisolver
+protobuf
